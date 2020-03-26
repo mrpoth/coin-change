@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Count your coins</title>
+  </head>
+  <body>
+    <label for="currency-input">Please enter the desired amount</label>
+    <input
+      type="text"
+      name="currency-input"
+      id="currency-input"
+      placeholder="Amount"
+    />
+    <p id="change"></p>
+    <p id="err"></p>
+  </body>
+  <script>
+    document
+      .getElementById("currency-input")
+      .addEventListener("change", function() {
+        let input = document.getElementById("currency-input").value;
+        let numberInput;
+        let cleanInput;
+        let err = document.getElementById("err");
+        let change = document.getElementById("change");
+        err.innerHTML = "";
+        change.innerHTML = "";
+
+        /*
+        Conditionals to handle all inputs.
+        These will finally convert input to standardised format,
+        so 10p is treated like 10 whereas $10 is treated like 1000
+         */
+        if (input.includes("p") && input.includes("£")) {
+          cleanInput = parseFloat(input.replace(/\£/g, ""));
+          numberInput = cleanInput * 100;
+        } else if (input.includes("p")) {
+          numberInput = parseInt(input);
+        } else if (input.includes("£")) {
+          cleanInput = parseFloat(input.replace(/\£/g, ""));
+          let inputLength = cleanInput.toString().length;
+          if (inputLength > 5) {
+            numberInput = Math.ceil(cleanInput * 100);
+          } else {
+            numberInput = cleanInput * 100;
+          }
+        } else if (parseFloat(input) % 1 !== 0) {
+          numberInput = Math.ceil(parseFloat(input) * 100);
+          console.log(numberInput);
+        } else if (!Number.isInteger(input)) {
+          numberInput = parseFloat(input);
+        }
+
+        if (!numberInput) {
+          document.getElementById("err").innerHTML = "Wrong input!";
+        } else {
+          /*Instead of assigning coins individually, an object keep things cleaner
+        Same effect could have been achieved with a switch statement or multiple conditionals */
+
+          const coins = [
+            {
+              pence: 200,
+              denomination: "£2"
+            },
+            {
+              pence: 100,
+              denomination: "£1"
+            },
+            {
+              pence: 50,
+              denomination: "50p"
+            },
+            {
+              pence: 20,
+              denomination: "20p"
+            },
+            {
+              pence: 10,
+              denomination: "10p"
+            },
+            {
+              pence: 5,
+              denomination: "5p"
+            },
+            {
+              pence: 2,
+              denomination: "2p"
+            },
+            {
+              pence: 1,
+              denomination: "1p"
+            }
+          ];
+
+          const getCoins = amountInput =>
+            coins.reduce((coinsCount, { pence, denomination }) => {
+              //First, division. If it cannot be divided, return to accumulator value
+              const numCoins = Math.floor(amountInput / pence);
+              if (numCoins < 1) return coinsCount;
+              //If it can be divided, reduce the accumulator value accordingly
+              amountInput -= numCoins * pence;
+              const coinCountString = `${numCoins}x ${denomination}`;
+              if (coinsCount) {
+                return `${coinsCount}, ${coinCountString}`;
+              } else {
+                return coinCountString;
+              }
+            }, 0);
+
+          change.innerHTML = getCoins(numberInput);
+        }
+      });
+  </script>
+</html>
