@@ -57,9 +57,11 @@
       }
     ];
 
-    //getCoins will take a numerical value then loop through the coins, dividing by each one.
-    //If there is at least 1 coin that fits, it will return that denomination.
+    // getCoins will take a numerical value then loop through the coins, dividing by each one.
+    // If there is at least 1 coin that fits, it will return that denomination along with how many times it fits.
     // Otherwise, it will skip and start the loop with the same accumulator value as before.
+    // e.g. given £1 (100 pence) it will attempt to divide 100 / 200 but since that doesn't return a positive value, it will
+    // return the accumulator and start again, going to £1. That will divide by 1, so it will return 1x £1, and so forth.
 
     const getCoins = amountInput =>
       coins.reduce((coinsCount, { pence, denomination }) => {
@@ -73,39 +75,35 @@
         return coinCountString;
       }, 0);
 
-    //setValue will clean all inputs. If input is not acceptable, it will display an error instead.
-    const setValue = input => {
+    //cleanValue will clean all inputs. If input is not acceptable, it will display an error instead.
+    const cleanValue = input => {
       if (input.includes("p") && input.includes("£")) {
-        numberInput = parseFloat(input.replace(/\£/g, "")) * 100;
+        return parseFloat(input.replace(/\£/g, "")) * 100;
       } else if (input.includes("p")) {
-        numberInput = parseInt(input);
+        return parseInt(input);
       } else if (input.includes("£")) {
         const cleanInput = parseFloat(input.replace(/\£/g, ""));
         let inputLength = cleanInput.toString().length;
         if (inputLength > 5) {
-          numberInput = Math.ceil(cleanInput * 100);
+          return Math.ceil(cleanInput * 100);
         } else {
-          numberInput = cleanInput * 100;
+          return cleanInput * 100;
         }
       } else if (parseFloat(input) % 1 !== 0) {
-        numberInput = Math.ceil(parseFloat(input) * 100);
+        return Math.ceil(parseFloat(input) * 100);
       } else if (!Number.isInteger(input)) {
-        numberInput = parseFloat(input);
+        return parseFloat(input);
       }
-      if (!numberInput) {
-        err.innerHTML = "Wrong input!";
-        return;
-      }
-      return numberInput;
     };
 
     //Bringing it all together. The event listener on the input will list all coins accordingly or display an error.
     currencyInput.addEventListener("change", function() {
       err.innerHTML = "";
       change.innerHTML = "";
-      let inputFinal = setValue(currencyInput.value);
+      const inputFinal = cleanValue(currencyInput.value);
       //Stop if the number isn't valid
       if (!inputFinal) {
+        err.innerHTML = "Wrong input!";
         return;
       }
       change.innerHTML = getCoins(inputFinal);
